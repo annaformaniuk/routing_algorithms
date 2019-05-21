@@ -93,6 +93,9 @@ routes_nodes = []
 routes_edges = []
 minimal = {"route": [], "route_dist": 9999999}
 
+# find the shortest route among the four, taking into account the
+# distance from the start point to the start node
+# and from end node to the end point
 for j, route_obj in enumerate(routes):
     route = route_obj.result["path"]
     route_nodes = find_node_objects(route, nodes)
@@ -115,9 +118,10 @@ for j, route_obj in enumerate(routes):
         minimal["route_dist"] = route_dist
         chosen_route_id = j
 
-
+# append the path from the start point to start node
 minimal["route"].append({"type": "Feature", "properties": {"name": "origin"}, "geometry": {"type": "MultiLineString", "coordinates": [[[start_point[1], start_point[0]], node_combinations[chosen_route_id][0]["geometry"]["coordinates"]]]}})
 
+# append the path from the end node to the end point
 minimal["route"].append({"type": "Feature", "properties": {"name": "destination"}, "geometry": {"type": "MultiLineString", "coordinates": [[[end_point[1], end_point[0]], node_combinations[chosen_route_id][1]["geometry"]["coordinates"]]]}})
 
 with open('brewery_garden.geojson', 'w') as file:
