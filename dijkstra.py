@@ -147,6 +147,3 @@ t3 = time.time()
 # t4 = time.time()
 # print("time to finf route", t4-t3)
 
-# TODO find the respective coordinates (nodes, edges? what should be the
-# return format?
-# TODO start and destination points are probably not exactly the nodes
