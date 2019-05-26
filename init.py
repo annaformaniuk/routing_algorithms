@@ -12,9 +12,28 @@ with open("selected_nodes_wgs84.geojson", "r") as read_file:
     nodes_json = json.load(read_file)
     nodes = nodes_json["features"]
 
-# find nodes that are on the opposite sides of road segments
+with open("selected_google_poi_rating_4.geojson", "r", encoding="utf8") as rf:
+    landmarks_json = json.load(rf)
+    landmarks = landmarks_json["features"]
+
 temp = []
 for edge in edges:
+    e_one = (edge["geometry"]["coordinates"][0][0][1],
+             edge["geometry"]["coordinates"][0][0][0])
+    e_two = (edge["geometry"]["coordinates"][0][-1][1],
+             edge["geometry"]["coordinates"][0][-1][0])
+    count = 100
+    for landmark in landmarks:
+        l = (landmark["geometry"]["coordinates"][1],
+             landmark["geometry"]["coordinates"][0])
+        if (is_between(e_one, l, e_two)):
+            if (count > 0):
+                count -= 10
+    # print(count)
+    # print(edge["properties"]["length"])
+    # edge["properties"]["length"] = count
+    # print(edge["properties"]["length"])
+
     start, end = None, None
     for node in nodes:
         if (node["geometry"]["coordinates"] ==
@@ -28,11 +47,32 @@ for edge in edges:
 
     if (start is not None) & (end is not None):
         # twice to be bidirectional
-        temp.append((str(start), str(end), edge["properties"]["length"]))
-        temp.append((str(end), str(start), edge["properties"]["length"]))
+        temp.append((str(start), str(end), count))
+        temp.append((str(end), str(start), count))
+
+
+# # find nodes that are on the opposite sides of road segments
+# temp = []
+# for edge in edges:
+#     start, end = None, None
+#     for node in nodes:
+#         if (node["geometry"]["coordinates"] ==
+#                 edge["geometry"]["coordinates"][0][0]):
+
+#             start = node["properties"]["nodeID"]
+#         if (node["geometry"]["coordinates"] ==
+#                 edge["geometry"]["coordinates"][0][-1]):
+
+#             end = node["properties"]["nodeID"]
+
+#     if (start is not None) & (end is not None):
+#         # twice to be bidirectional
+#         temp.append((str(start), str(end), edge["properties"]["length"]))
+#         temp.append((str(end), str(start), edge["properties"]["length"]))
 
 # create the network
 graph = Graph(temp)
+
 
 # define origin and destination points
 # start_point = [51.968069, 7.622946]  # rewe
@@ -111,7 +151,7 @@ minimal = {"route": [], "route_dist": 9999999}
 # distance from the start point to the start node
 # and from end node to the end point
 for j, route_obj in enumerate(routes):
-    route = route_obj.result["path"]
+    route = route_obj
     route_nodes = find_node_objects(route, nodes)
     routes_nodes.append(route_nodes)
     route_edges = []
@@ -157,6 +197,6 @@ minimal["route"].append({"type": "Feature", "properties": {"name": "dest"},
                          node_combinations[chosen_route_id][1]["geometry"][
                              "coordinates"]]]}})
 
-with open('sundayyy.geojson', 'w') as file:
+with open('brewery_garden_landm.geojson', 'w') as file:
     json.dump(
         {'type': "FeatureCollection", "features": minimal["route"]}, file)

@@ -53,8 +53,9 @@ def distance(a, b):
 
 
 def is_between(a, c, b):
-    dif = haversine(a, c) + haversine(c, b) - haversine(a, b)
-    return dif < 0.01
+    dif = distance(a, c) + distance(c, b) - distance(a, b)
+    # print(dif)
+    return dif < 0.015
 
 
 def find_node_objects(ids, nodes):

@@ -1,7 +1,5 @@
 from collections import deque, namedtuple
 import json
-import time
-import pickle
 
 # we'll use infinity as a default distance to nodes.
 inf = float('inf')
@@ -13,15 +11,7 @@ def make_edge(start, end, cost=1):
 
 
 class Graph:
-    # graph.pickle is the saved graph, if it doesn't exist new one is created from the geojson files.
-    def __init__(self, edges=[]):
-        # try:
-            # with open('graph.pickle', 'rb') as fp:
-                # edges = pickle.load(fp)
-            # edges = open('graph.pickle', 'r')
-            # Store configuration file values
-        # except IOError:
-        edges = self.createGraphFromGeojson()
+    def __init__(self, edges):
         # let's check that the data is right
         wrong_edges = [i for i in edges if len(i) not in [2, 3]]
         if wrong_edges:
@@ -97,53 +87,3 @@ class Graph:
         if path:
             path.appendleft(current_vertex)
         return path
-
-    def createGraphFromGeojson(self, node_file="selected_nodes.geojson", edge_file="selected_edges.geojson"):
-        t1 = time.time()
-        with open("selected_edges.geojson", "r") as read_file:
-            edges_json = json.load(read_file)
-            edges = edges_json["features"]
-
-        with open("selected_nodes.geojson", "r") as read_file:
-            nodes_json = json.load(read_file)
-            nodes = nodes_json["features"]
-
-        g = []
-        for edge in edges:
-            start, end = None, None
-            for node in nodes:
-                if (node["geometry"]["coordinates"] ==
-                        edge["geometry"]["coordinates"][0][0]):
-
-                    start = node["properties"]["nodeID"]
-                if (node["geometry"]["coordinates"] ==
-                        edge["geometry"]["coordinates"][0][-1]):
-
-                    end = node["properties"]["nodeID"]
-
-            if (start is not None) & (end is not None):
-                # twice to be bidirectional
-                g.append((str(start), str(end), edge["properties"]["length"]))
-                g.append((str(end), str(start), edge["properties"]["length"]))
-        t2 = time.time()
-        print("time to load data", t2-t1)
-        with open('graph.pickle', 'wb') as fp:
-            pickle.dump(g, fp)
-        return g
-        # create the network
-
-graph = Graph()
-
-
-# example of the Graph structure
-# graph = Graph([
-#     ("a", "b", 7),  ("a", "c", 9),  ("a", "f", 14), ("b", "c", 10),
-#     ("b", "d", 15), ("c", "d", 11), ("c", "f", 2),  ("d", "e", 6),
-#     ("e", "f", 9)])
-t3 = time.time()
-# print("time to create graph",t3-t2)
-# find a route
-# print(graph.dijkstra("5907", "460"))
-# t4 = time.time()
-# print("time to finf route", t4-t3)
-
