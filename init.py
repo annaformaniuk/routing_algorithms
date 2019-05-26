@@ -1,6 +1,7 @@
 import json
 from dijkstra import Graph
-from calculations import is_between, find_node_objects, sum_route_length, haversine
+from calculations import is_between, find_node_objects, sum_route_length
+from calculations import haversine
 
 # save the edges and the nodes
 with open("selected_edges_wgs84.geojson", "r") as read_file:
@@ -76,7 +77,14 @@ print(one_side_node_start, other_side_node_start,
       one_side_node_end, other_side_node_end)
 
 # for future geojson file
-node_combinations = [find_node_objects([one_side_node_start, one_side_node_end], nodes), find_node_objects([other_side_node_start, other_side_node_end], nodes), find_node_objects([one_side_node_start, other_side_node_end], nodes), find_node_objects([other_side_node_start, one_side_node_end], nodes)]
+node_combinations = [find_node_objects([one_side_node_start,
+                                        one_side_node_end], nodes),
+                     find_node_objects([other_side_node_start,
+                                        other_side_node_end], nodes),
+                     find_node_objects([one_side_node_start,
+                                        other_side_node_end], nodes),
+                     find_node_objects([other_side_node_start,
+                                        one_side_node_end], nodes)]
 
 # find possible routes
 routes = []
@@ -87,7 +95,13 @@ routes.append(graph.dijkstra(other_side_node_start, one_side_node_end))
 
 
 # for fast testing
-# routes = [['94', '239', '966', '93', '124', '125', '4818', '877', '5751', '955', '979', '255', '249'], ['4983', '4974', '97', '89', '238', '5881', '233', '5131', '5216', '5215', '5219', '235', '850', '122', '882', '5739', '889'], ['94', '239', '237', '236', '4971', '5206', '92', '864', '991', '3192', '882', '5739', '889'], ['4983', '4974', '97', '89', '238', '5881', '233', '5131', '5216', '5215', '5219', '235', '850', '122', '882', '948', '5749', '249']]
+# routes = [['94', '239', '966', '93', '124', '125', '4818', '877', '5751'
+# '955', '979', '255', '249'], ['4983', '4974', '97', '89', '238', '5881',
+# '233', '5131', '5216', '5215', '5219', '235', '850', '122', '882', '5739',
+# '889'], ['94', '239', '237', '236', '4971', '5206', '92', '864', '991',
+# '3192', '882', '5739', '889'], ['4983', '4974', '97', '89', '238', '5881',
+# '233', '5131', '5216', '5215', '5219', '235', '850', '122', '882', '948',
+# '5749', '249']]
 
 routes_nodes = []
 routes_edges = []
@@ -104,14 +118,25 @@ for j, route_obj in enumerate(routes):
     for i, route_node in enumerate(route_nodes):
         if (i != len(route_nodes)-1):
             for edge in edges:
-                if (((edge["geometry"]["coordinates"][0][0] == route_nodes[i]["geometry"]["coordinates"]) & (edge["geometry"]["coordinates"][0][-1] == route_nodes[i+1]["geometry"]["coordinates"])) | ((edge["geometry"]["coordinates"][0][0] == route_nodes[i+1]["geometry"]["coordinates"]) & (edge["geometry"]["coordinates"][0][-1] == route_nodes[i]["geometry"]["coordinates"]))):
+                if (((edge["geometry"]["coordinates"][0][0] ==
+                      route_nodes[i]["geometry"]["coordinates"]) &
+                    (edge["geometry"]["coordinates"][0][-1] ==
+                     route_nodes[i+1]["geometry"]["coordinates"])) |
+                    ((edge["geometry"]["coordinates"][0][0] ==
+                      route_nodes[i+1]["geometry"]["coordinates"]) &
+                    (edge["geometry"]["coordinates"][0][-1] ==
+                     route_nodes[i]["geometry"]["coordinates"]))):
                     route_edges.append(edge)
     routes_edges.append(route_edges)
     route_dist = sum_route_length(route_edges)
     route_dist += haversine(
-        start_point, (node_combinations[j][0]["geometry"]["coordinates"][1], node_combinations[j][0]["geometry"]["coordinates"][0]))*1000
+        start_point, (
+            node_combinations[j][0]["geometry"]["coordinates"][1],
+            node_combinations[j][0]["geometry"]["coordinates"][0]))*1000
     route_dist += haversine(
-        end_point, (node_combinations[j][1]["geometry"]["coordinates"][1], node_combinations[j][1]["geometry"]["coordinates"][0]))*1000
+        end_point, (
+            node_combinations[j][1]["geometry"]["coordinates"][1],
+            node_combinations[j][1]["geometry"]["coordinates"][0]))*1000
     print(route_dist)
     if (route_dist < minimal["route_dist"]):
         minimal["route"] = route_edges
@@ -119,12 +144,19 @@ for j, route_obj in enumerate(routes):
         chosen_route_id = j
 
 # append the path from the start point to start node
-minimal["route"].append({"type": "Feature", "properties": {"name": "origin"}, "geometry": {"type": "MultiLineString", "coordinates": [[[start_point[1], start_point[0]], node_combinations[chosen_route_id][0]["geometry"]["coordinates"]]]}})
+minimal["route"].append({"type": "Feature", "properties": {"name": "origin"},
+                        "geometry": {"type": "MultiLineString", "coordinates":
+                         [[[start_point[1], start_point[0]],
+                          node_combinations[chosen_route_id][0]["geometry"][
+                              "coordinates"]]]}})
 
 # append the path from the end node to the end point
-minimal["route"].append({"type": "Feature", "properties": {"name": "destination"}, "geometry": {"type": "MultiLineString", "coordinates": [[[end_point[1], end_point[0]], node_combinations[chosen_route_id][1]["geometry"]["coordinates"]]]}})
+minimal["route"].append({"type": "Feature", "properties": {"name": "dest"},
+                         "geometry": {"type": "MultiLineString", "coordinates":
+                        [[[end_point[1], end_point[0]],
+                         node_combinations[chosen_route_id][1]["geometry"][
+                             "coordinates"]]]}})
 
-with open('brewery_garden.geojson', 'w') as file:
-    json.dump({'type': "FeatureCollection", "features": minimal["route"]}, file)
-
-# TODO better structure
+with open('sundayyy.geojson', 'w') as file:
+    json.dump(
+        {'type': "FeatureCollection", "features": minimal["route"]}, file)

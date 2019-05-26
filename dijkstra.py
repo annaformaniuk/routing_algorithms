@@ -9,10 +9,13 @@ Edge = namedtuple('Edge', 'start, end, cost')
 
 print("Program Started at " + str(time.time()))
 
+
 def make_edge(start, end, cost=1):
     return Edge(start, end, cost)
 
-def createGraphFromGeojson(node_file="selected_nodes.geojson", edge_file='selected_nodes.geojson'):
+
+def createGraphFromGeojson(node_file="selected_nodes.geojson",
+                           edge_file='selected_nodes.geojson'):
         t1 = time.time()
         with open(edge_file, "r") as read_file:
             edges_json = json.load(read_file)
@@ -21,7 +24,7 @@ def createGraphFromGeojson(node_file="selected_nodes.geojson", edge_file='select
         with open(node_file, "r") as read_file:
             nodes_json = json.load(read_file)
             nodes = nodes_json["features"]
-        
+
         g = []
         for edge in edges:
             start, end = None, None
@@ -41,14 +44,16 @@ def createGraphFromGeojson(node_file="selected_nodes.geojson", edge_file='select
                 g.append((str(end), str(start), edge["properties"]["length"]))
         t2 = time.time()
         print("time to load data", t2-t1)
-        with open('graph.json', 'w') as outfile:  
+        with open('graph.json', 'w') as outfile:
             json.dump(g, outfile)
         return g
         # create the network
 
+
 class Graph:
-    # graph.pickle is the saved graph, if it doesn't exist new one is created from the geojson files.
-    def __init__(self, edges=[], landmarks={},config={}):
+    # graph.pickle is the saved graph, if it doesn't exist new one is created
+    # from the geojson files.
+    def __init__(self, edges=[], landmarks={}, config={}):
         # let's check that the data is right
         wrong_edges = [i for i in edges if len(i) not in [2, 3]]
         if wrong_edges:
@@ -99,8 +104,8 @@ class Graph:
             neighbours[start].add((end, cost))
         while vertices:
             current_vertex = min(
-                vertices, key=lambda vertex: distances[vertex])         
-            
+                vertices, key=lambda vertex: distances[vertex])
+
             for neighbour, cost in neighbours[current_vertex]:
                 alternative_route = distances[current_vertex] + cost
                 if alternative_route < distances[neighbour]:
@@ -120,7 +125,7 @@ class Graph:
         self.result["path"] = path
         self.result["removedvertices"] = removedvertices
         return self
-    
+
     def dijkstra_landmark(self, source, dest):
         assert source in self.vertices, 'Such source node doesn\'t exist'
         distances = {vertex: inf for vertex in self.vertices}
@@ -136,12 +141,16 @@ class Graph:
             neighbours[start].add((end, cost))
         while vertices:
             current_vertex = min(
-                vertices, key=lambda vertex: distances[vertex])         
-            
+                vertices, key=lambda vertex: distances[vertex])
+
             for neighbour, cost in neighbours[current_vertex]:
                 if int(current_vertex) in self.landmarks:
-                    # cost -= cost                                  # no cost to move to a landmark favored node, best results till now, not useful if lots of small edges 
-                    # cost -= self.landmarks[int(current_vertex)]   # highly biased towards landwarks, sometimes doesn't give result when discount setting is high
+                    # cost -= cost
+                    # no cost to move to a landmark favored node, best results
+                    # till now, not useful if lots of small edges
+                    # cost -= self.landmarks[int(current_vertex)]
+                    # highly biased towards landwarks, sometimes doesn't give
+                    # result when discount setting is high
                     cost /= 0.5 * cost
                     # print cost
                 alternative_route = distances[current_vertex] + cost
@@ -171,8 +180,14 @@ class Graph:
         for vertex in self.result["path"]:
             for node in nodes:
                 if(node["properties"]["nodeID"] == int(vertex)):
-                    self.result['geom_path'].append(node["geometry"]["coordinates"])
+                    self.result['geom_path'].append(
+                        node["geometry"]["coordinates"])
         return self
-    
+
     def to_geojson(self):
-        return '{"type": "FeatureCollection","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::25832" } },"features": [{"type": "Feature","properties":{"e":"m"},"geometry": {"type": "LineString","coordinates":'+str(self.result['geom_path'])+'}}]}' 
+        return '{"type": "FeatureCollection","crs": { \
+            "type": "name", "properties": { "name": \
+                "urn:ogc:def:crs:EPSG::25832" } },"features": \
+                    [{"type": "Feature","properties":{"e":"m"},"geometry": \
+                        {"type": "LineString","coordinates":'+str(
+                            self.result['geom_path'])+'}}]}'
