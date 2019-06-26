@@ -19,6 +19,14 @@ class Graph:
 
         self.edges = [make_edge(*edge) for edge in edges]
 
+    @property
+    def vertices(self):
+        return set(
+            sum(
+                ([edge.start, edge.end] for edge in self.edges), []
+            )
+        )
+
     def get_node_pairs(self, n1, n2, both_ends=True):
         if both_ends:
             node_pairs = [[n1, n2], [n2, n1]]
@@ -43,6 +51,14 @@ class Graph:
         if both_ends:
             self.edges.append(Edge(start=n2, end=n1, cost=cost))
 
+    @property
+    def neighbours(self):
+        neighbours = {vertex: set() for vertex in self.vertices}
+        for edge in self.edges:
+            neighbours[edge.start].add((edge.end, edge.cost))
+
+        return neighbours
+
     def dijkstra(self, source, dest):
         assert source in self.vertices, 'Such source node doesn\'t exist'
         distances = {vertex: inf for vertex in self.vertices}
@@ -51,46 +67,7 @@ class Graph:
         }
         distances[source] = 0
         vertices = self.vertices.copy()
-        neighbours = {vertex: set() for vertex in self.vertices}
-        removedvertices = []
 
-        for start, end, cost in self.edges:
-            neighbours[start].add((end, cost))
-        while vertices:
-            current_vertex = min(
-                vertices, key=lambda vertex: distances[vertex])
-
-            for neighbour, cost in neighbours[current_vertex]:
-                alternative_route = distances[current_vertex] + cost
-                if alternative_route < distances[neighbour]:
-                    distances[neighbour] = alternative_route
-                    previous_vertices[neighbour] = current_vertex
-            if distances[current_vertex] == inf or current_vertex == dest:
-                break
-            vertices.remove(current_vertex)
-            removedvertices.append(current_vertex)
-
-        path, current_vertex = deque(), dest
-        while previous_vertices[current_vertex] is not None:
-            path.appendleft(current_vertex)
-            current_vertex = previous_vertices[current_vertex]
-        if path:
-            path.appendleft(current_vertex)
-        self.result["path"] = path
-        self.result["removedvertices"] = removedvertices
-        return self
-
-    def dijkstra_landmark(self, source, dest):
-        assert source in self.vertices, 'Such source node doesn\'t exist'
-        distances = {vertex: inf for vertex in self.vertices}
-        previous_vertices = {
-            vertex: None for vertex in self.vertices
-        }
-        distances[source] = 0
-        vertices = self.vertices.copy()
-
-        for start, end, cost in self.edges:
-            neighbours[start].add((end, cost))
         while vertices:
             current_vertex = min(
                 vertices, key=lambda vertex: distances[vertex])
