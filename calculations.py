@@ -52,9 +52,9 @@ def distance(a, b):
     return sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
 
 
-def is_between(a, c, b):
+def is_between(a, c, b, deviation):
     dif = haversine(a, c) + haversine(c, b) - haversine(a, b)
-    return dif < 0.01
+    return dif < deviation
 
 
 def find_node_objects(ids, nodes):
