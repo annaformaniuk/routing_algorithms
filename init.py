@@ -44,7 +44,7 @@ def create_graph(nodes, edges, simple):
                     # if (landmark["properties"]["name"] ==
                     #    'Kath. Church Holy Cross\" in Munster\"'):
                     #     print("church", edge["properties"]["streetID"])
-                    score = score*((1-landmark["properties"]["TOTAL_SCORE"])/1)
+                    score = score*((1-landmark["properties"]["TOTAL_SCORE"])/1.5)
                     if (score < 0):
                         score = 0
 
@@ -156,9 +156,9 @@ def find_shortest_route(routes, nodes, start_point, end_point):
              "name": "dest"},
          "geometry": {"type": "MultiLineString",
                       "coordinates": [
-                          [[end_point[1], end_point[0]],
-                           node_combinations[chosen_route_id][1]["geometry"][
-                                "coordinates"]]]}})
+                          [node_combinations[chosen_route_id][1]["geometry"][
+                                "coordinates"],
+                           [end_point[1], end_point[0]]]]}})
 
     return minimal
 
