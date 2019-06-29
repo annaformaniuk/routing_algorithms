@@ -112,12 +112,16 @@ def find_shortest_route(routes, nodes, start_point, end_point):
                     if (((edge["geometry"]["coordinates"][0][0] ==
                         route_nodes[i]["geometry"]["coordinates"]) &
                         (edge["geometry"]["coordinates"][0][-1] ==
-                        route_nodes[i+1]["geometry"]["coordinates"])) |
-                        ((edge["geometry"]["coordinates"][0][0] ==
-                         route_nodes[i+1]["geometry"]["coordinates"]) &
+                         route_nodes[i+1]["geometry"]["coordinates"]))):
+                        route_edges.append(edge)
+                    if (((edge["geometry"]["coordinates"][0][0] ==
+                        route_nodes[i+1]["geometry"]["coordinates"]) &
                         (edge["geometry"]["coordinates"][0][-1] ==
                          route_nodes[i]["geometry"]["coordinates"]))):
-                        route_edges.append(edge)
+                        reversed_geom = edge
+                        reversed_geom["geometry"]["coordinates"][0] = edge[
+                            "geometry"]["coordinates"][0][::-1]
+                        route_edges.append(reversed_geom)
         routes_edges.append(route_edges)
         route_dist = sum_route_length(route_edges)
         route_dist += haversine(
@@ -135,12 +139,12 @@ def find_shortest_route(routes, nodes, start_point, end_point):
             chosen_route_id = j
 
     # append the path from the start point to start node
-    minimal["route"].append(
-        {"type": "Feature",
-         "properties": {
+    minimal["route"].insert(
+        0, {"type": "Feature",
+            "properties": {
              "name": "origin"},
-         "geometry": {"type": "MultiLineString",
-                      "coordinates": [
+            "geometry": {"type": "MultiLineString",
+                         "coordinates": [
                           [[start_point[1], start_point[0]],
                            node_combinations[chosen_route_id][0]["geometry"][
                                 "coordinates"]]]}})
