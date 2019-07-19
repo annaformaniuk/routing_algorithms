@@ -7,9 +7,7 @@ The study area of the project is the Kreuzviertel part of the city of Münster (
 
 ## Requirements
 
-_To avoid errors with displaying results, please make sure to run your QGIS as administrator._
-
-A default installation of QGIS3 is required, with following libraries included:
+Following snandard Python libraries are required:
 
 - os
 - sys
