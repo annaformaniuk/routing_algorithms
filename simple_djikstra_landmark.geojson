@@ -1,1 +1,0 @@
-{"type": "FeatureCollection","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::25832" } },"features": [{"type": "Feature","properties":{"e":"m"},"geometry": {"type": "LineString","coordinates":[[405075.28116017825, 5758791.257585551], [405059.4003310722, 5758939.072012117], [405140.6388913964, 5758938.018171724]]}}]}

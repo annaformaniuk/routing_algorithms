@@ -2,6 +2,11 @@ from math import radians, cos, sin, asin, sqrt
 
 
 def UTM_to_lb(lat, lon, alt):
+    """
+    Transform from UTM zone 32N to WGS 84 in case that 
+    projected CS is chosen
+    """
+
     input_string = '     {}      {}      {} '.format(lat, lon, alt)
     text_file = open("LB2.txt", "w")
     text_file.write(input_string)
@@ -36,6 +41,11 @@ def haversine(coord1, coord2):
 
 
 def get_closest_node(point, nodes):
+    """
+    Find a node that is the closest to a point, expressed in
+    geographical coordinates
+    """
+
     node_id = 0
     min_dist = 9999
     for node in nodes:
@@ -49,17 +59,29 @@ def get_closest_node(point, nodes):
 
 
 def distance(a, b):
+    """
+    Euclidean distance between two points
+    """
+
     return sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
 
 
 def is_between(a, c, b, deviation):
+    """
+    Check if one point is on a more or less straight line between
+    two other. The buffer of deviation is given as a parameter
+    """
+
     dif = haversine(a, c) + haversine(c, b) - haversine(a, b)
     return dif < deviation
 
 
 def find_node_objects(ids, nodes):
-    # print(ids)
-    # print(len(nodes))
+    """
+    Find complete nodes from a list of nodes based on a
+    list of ids
+    """
+
     node_objects = []
     for single_id in ids:
         for node in nodes:
@@ -69,6 +91,10 @@ def find_node_objects(ids, nodes):
 
 
 def sum_route_length(route):
+    """"
+    Find total length of a route summing lengths of edges it
+    consists of
+    """
     length = 0
     for edge in route:
         length += edge["properties"]["length"]
